@@ -1,0 +1,20 @@
+{
+  "name": "checkers",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "Русские шашки в браузере",
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^6.4.3",
+    "vitest": "^5.0.3"
+  },
+  "private": true,
+  "type": "module"
+}

@@ -1,0 +1,472 @@
+:root {
+  --bg: #e3e7e2;
+  --surface: #f3f5f1;
+  --text: #1b201d;
+  --muted: #56615a;
+  --line: #c3cbc4;
+  --accent: #a3332a;
+  --accent-text: #fff;
+  --sq-light: #ecd3a6;
+  --sq-dark: #7b4b2d;
+  --frame: #4a2c1a;
+  --frame-text: #e9d3b0;
+  --target: #3f8f5f;
+  --last: rgba(236, 196, 70, 0.45);
+  --man-w: #f4eee2;
+  --man-w-edge: #bfae93;
+  --man-b: #2b2523;
+  --man-b-edge: #0f0c0b;
+  --radius: 10px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #131715;
+    --surface: #1c221f;
+    --text: #e4e8e4;
+    --muted: #9aa49d;
+    --line: #2f3833;
+    --accent: #c9493d;
+    --frame: #2e1c12;
+    --frame-text: #b99d78;
+    --sq-light: #caa97a;
+    --sq-dark: #5e3820;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #131715;
+  --surface: #1c221f;
+  --text: #e4e8e4;
+  --muted: #9aa49d;
+  --line: #2f3833;
+  --accent: #c9493d;
+  --frame: #2e1c12;
+  --frame-text: #b99d78;
+  --sq-light: #caa97a;
+  --sq-dark: #5e3820;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 'PT Sans', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+h1,
+h2 {
+  font-family: 'Alegreya Sans SC', 'PT Sans', sans-serif;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.1;
+}
+
+h1 {
+  font-size: 2.25rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-top: 28px;
+  margin-bottom: 8px;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* ---------- Раскладка ---------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(260px, 320px);
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+.board-wrap {
+  --coord: 20px;
+  --size: min(calc(100vw - 32px - 2 * var(--coord)), calc(100vh - 220px), 600px);
+  --size: min(calc(100vw - 32px - 2 * var(--coord)), calc(100dvh - 220px), 600px);
+  width: calc(var(--size) + 2 * var(--coord));
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 860px) {
+  .board-wrap {
+    --size: min(calc(100vw - 32px - 2 * var(--coord)), 600px);
+  }
+}
+
+.board-frame {
+  display: grid;
+  grid-template-columns: var(--coord) var(--size) var(--coord);
+  grid-template-rows: var(--coord) var(--size) var(--coord);
+  background: var(--frame);
+  border-radius: 6px;
+  color: var(--frame-text);
+  font-size: 0.75rem;
+  user-select: none;
+}
+
+.files {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  text-align: center;
+  align-items: center;
+}
+
+.files--top {
+  grid-row: 1;
+}
+
+.files--bottom {
+  grid-row: 3;
+}
+
+.ranks {
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+  align-items: center;
+  text-align: center;
+}
+
+.ranks--left {
+  grid-column: 1;
+}
+
+.ranks--right {
+  grid-column: 3;
+}
+
+.board {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  touch-action: none;
+}
+
+/* ---------- Поля ---------- */
+
+.sq {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.sq--light {
+  background: var(--sq-light);
+}
+
+.sq--dark {
+  background: var(--sq-dark);
+}
+
+.sq--last::before,
+.sq--path::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--last);
+}
+
+.sq--target {
+  cursor: pointer;
+}
+
+.sq--target::after {
+  content: '';
+  position: absolute;
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: var(--target);
+  opacity: 0.9;
+}
+
+.sq--movable .piece {
+  cursor: grab;
+  box-shadow:
+    0 0 0 3px var(--target),
+    0 3px 0 var(--edge),
+    0 5px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Шашки ---------- */
+
+.piece {
+  --edge: var(--man-w-edge);
+  position: relative;
+  width: 72%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow:
+    0 3px 0 var(--edge),
+    0 5px 8px rgba(0, 0, 0, 0.35);
+  transition: transform 120ms ease-out;
+}
+
+.piece::before {
+  content: '';
+  position: absolute;
+  inset: 16%;
+  border-radius: 50%;
+  border: 2px solid var(--edge);
+  opacity: 0.7;
+}
+
+.piece--w {
+  background: radial-gradient(circle at 35% 30%, #fffdf8, var(--man-w) 60%);
+}
+
+.piece--b {
+  --edge: var(--man-b-edge);
+  background: radial-gradient(circle at 35% 30%, #4a403c, var(--man-b) 60%);
+}
+
+.piece--b::before {
+  border-color: #5a4d47;
+}
+
+.piece--king::after {
+  content: '';
+  position: absolute;
+  inset: 24%;
+  background: #c9962c;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 18h18l1-11-5.5 4.5L12 4 7.5 11.5 2 7z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 18h18l1-11-5.5 4.5L12 4 7.5 11.5 2 7z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+.piece--selected {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 3px var(--accent),
+    0 6px 0 var(--edge),
+    0 9px 12px rgba(0, 0, 0, 0.4);
+}
+
+.piece--taken {
+  opacity: 0.35;
+}
+
+.piece--lifted {
+  opacity: 0.25;
+}
+
+.piece--ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  pointer-events: none;
+  cursor: grabbing;
+}
+
+/* ---------- Игроки ---------- */
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 2px;
+  min-height: 44px;
+  font-size: 0.95rem;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.dot--w {
+  background: var(--man-w);
+  border: 1px solid var(--man-w-edge);
+}
+
+.dot--b {
+  background: var(--man-b);
+  border: 1px solid var(--man-b-edge);
+}
+
+.who {
+  font-weight: 700;
+}
+
+.count {
+  color: var(--muted);
+}
+
+.turn {
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ---------- Панель ---------- */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.status {
+  margin: 0 0 20px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  min-height: 3em;
+}
+
+.status--over {
+  color: var(--accent);
+}
+
+.controls {
+  display: grid;
+  gap: 12px;
+}
+
+.controls label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.mode-pvp .ai-only {
+  display: none;
+}
+
+select {
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.btn {
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--muted);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.btn--primary {
+  grid-column: 1 / -1;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.btn--primary:hover:not(:disabled) {
+  border-color: var(--accent);
+  filter: brightness(1.08);
+}
+
+.history {
+  margin: 0;
+  padding: 0 0 0 2.2em;
+  max-height: 220px;
+  overflow-y: auto;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+}
+
+.history li {
+  padding: 2px 0;
+}
+
+.history li span {
+  display: inline-block;
+  min-width: 7.5em;
+}
+
+.history:empty::before {
+  content: 'Пока ни одного хода.';
+  display: block;
+  margin-left: -2.2em;
+  color: var(--muted);
+}
+
+@media (max-width: 860px) {
+  .history {
+    max-height: none;
+  }
+}
