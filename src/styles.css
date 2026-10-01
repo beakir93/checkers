@@ -229,8 +229,11 @@ h2 {
   opacity: 0.9;
 }
 
-.sq--movable .piece {
+.sq--own .piece {
   cursor: grab;
+}
+
+.sq--movable .piece {
   box-shadow:
     0 0 0 3px var(--target),
     0 3px 0 var(--edge),

@@ -37,6 +37,8 @@ let selected: number | null = null;
 let partial: number[] = [];
 let thinking = false;
 let aiRequest = 0;
+/** Подсказка после недопустимого действия игрока. */
+let hint: string | null = null;
 
 interface Drag {
   pointerId: number;
@@ -89,6 +91,7 @@ const selectedPos = () => (partial.length ? partial[partial.length - 1] : select
 function onSquare(sq: number): void {
   if (!humanTurn()) return;
   if (selected !== null && candidates().some((m) => m.path[partial.length] === sq)) {
+    hint = null;
     partial.push(sq);
     const rest = candidates();
     // Если продолжение единственное, доигрываем серию сразу.
@@ -96,13 +99,31 @@ function onSquare(sq: number): void {
     else render();
     return;
   }
-  if (partial.length) return; // посреди взятия выбрать другую шашку нельзя
-  selected = game.legal.some((m) => m.from === sq) ? sq : null;
+  if (partial.length) {
+    // Посреди взятия выбрать другую шашку нельзя.
+    hint = 'Продолжайте взятие этой же шашкой.';
+  } else if (game.board[sq]?.color === game.turn) {
+    // Взять можно любую свою шашку, а вот поставить — только по правилам.
+    selected = sq;
+    hint = game.legal.some((m) => m.from === sq) ? null : noMovesHint();
+  } else if (selected !== null && isDark(sq) && !game.board[sq]) {
+    hint = 'Так ходить нельзя.';
+  } else {
+    selected = null;
+    hint = null;
+  }
   render();
+}
+
+function noMovesHint(): string {
+  return game.legal[0]?.captures.length
+    ? 'Бить обязательно: ходите шашкой, которая может бить.'
+    : 'У этой шашки нет ходов.';
 }
 
 function commit(move: Move): void {
   game.play(move);
+  hint = null;
   selected = null;
   partial = [];
   save();
@@ -111,6 +132,7 @@ function commit(move: Move): void {
 }
 
 function resetSelection(): void {
+  hint = null;
   selected = null;
   partial = [];
 }
@@ -178,6 +200,7 @@ function renderBoard(): void {
     if (partial.includes(i)) sq.classList.add('sq--path');
     if (targets.has(i)) sq.classList.add('sq--target');
     if (movable.has(i) && selected === null) sq.classList.add('sq--movable');
+    if (human && !partial.length && board[i]?.color === game.turn) sq.classList.add('sq--own');
 
     const p = board[i];
     if (p) {
@@ -239,6 +262,7 @@ function statusText(): string {
     return `Победили ${colorGenitive[r.winner]}: ${r.reason}.`;
   }
   if (thinking) return 'Компьютер думает…';
+  if (hint) return hint;
   const forced = game.legal[0]?.captures.length ? ' Бить обязательно.' : '';
   if (partial.length) return 'Продолжайте взятие.';
   if (settings.mode === 'ai') return 'Ваш ход.' + forced;
@@ -333,8 +357,12 @@ function endDrag(e: PointerEvent, cancelled: boolean): void {
     return;
   }
   const target = cancelled ? -1 : squareAt(e.clientX, e.clientY);
-  if (target >= 0 && target !== d.sq) onSquare(target);
-  else render();
+  if (target >= 0 && target !== d.sq) {
+    if (candidates().some((m) => m.path[partial.length] === target)) return onSquare(target);
+    // Шашка возвращается на место, выбор сохраняется.
+    hint = game.legal.some((m) => m.from === selected) ? 'Так ходить нельзя.' : noMovesHint();
+  }
+  render();
 }
 
 boardEl.addEventListener('pointerup', (e) => endDrag(e, false));
