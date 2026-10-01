@@ -183,7 +183,9 @@ function order(): number[] {
 function renderBoard(): void {
   const { board, taken } = displayBoard();
   const human = humanTurn();
-  const movable = new Set(human && !partial.length ? game.legal.map((m) => m.from) : []);
+  // Подсветка шашек, которыми можно ходить, — подсказка только для лёгкого уровня.
+  const showMovable = human && !partial.length && settings.mode === 'ai' && settings.level === 'easy';
+  const movable = new Set(showMovable ? game.legal.map((m) => m.from) : []);
   const targets = new Set(candidates().map((m) => m.path[partial.length]));
   const last = game.moves[game.moves.length - 1];
   const lastSquares = new Set(last ? [last.from, ...last.path] : []);
@@ -306,6 +308,7 @@ function render(): void {
   sideEl.value = settings.side;
   levelEl.value = settings.level;
   document.body.classList.toggle('mode-pvp', settings.mode === 'pvp');
+  $('level-note').hidden = settings.level !== 'easy';
 }
 
 // ---------- Ввод ----------
