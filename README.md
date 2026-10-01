@@ -2,7 +2,7 @@
 
 Браузерная игра в русские шашки: вдвоём за одним устройством или против компьютера.
 
-**Играть:** https://beakir93.github.io/checkers/
+**Играть:** https://beakir93.github.io/checkers/ (также страница на claude.ai: https://claude.ai/artifact/9EhtaUqE6QM65dhuzJkisU, она приватная, пока ею не поделиться)
 
 ## Возможности
 
@@ -29,6 +29,7 @@ npm install
 npm run dev     # сервер разработки
 npm test        # тесты правил и бота
 npm run build   # сборка в dist/
+npm run build:artifact  # один HTML-файл для страницы на claude.ai (dist-artifact/checkers.html)
 ```
 
 ## Устройство

@@ -3,6 +3,7 @@ import { Game } from './game';
 import { isDark, sameMove, squareName } from './rules';
 import type { Board, Color, Move } from './rules';
 import type { Level } from './ai';
+import AiWorker from './ai.worker?worker&inline';
 
 type Mode = 'ai' | 'pvp';
 
@@ -139,7 +140,8 @@ function resetSelection(): void {
 
 // ---------- Бот ----------
 
-const worker = new Worker(new URL('./ai.worker.ts', import.meta.url), { type: 'module' });
+// Воркер встраивается в бандл, поэтому игра работает и как один HTML-файл (страница на claude.ai).
+const worker = new AiWorker();
 
 worker.onmessage = (e: MessageEvent<{ id: number; move: Move | null }>) => {
   if (e.data.id !== aiRequest || !e.data.move) return;
